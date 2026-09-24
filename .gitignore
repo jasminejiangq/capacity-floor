@@ -1,0 +1,86 @@
+# ======================================================================
+# Third-party literature. These are publisher PDFs obtained through a
+# university library subscription (Journal of Finance, Elsevier, EBSCO,
+# newspapers, books). Redistributing them publicly is copyright
+# infringement and violates the library licence. They must never be
+# committed, and this rule is why the repository was rebuilt once.
+# ======================================================================
+zhishiku/
+literature/
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.epub
+*.mobi
+*.djvu
+
+# ======================================================================
+# Licensed data. Committing any of this would violate the WRDS agreement
+# and can affect an entire university subscription. Not negotiable.
+# ======================================================================
+data/us/
+data/wrds/
+**/crsp*.csv
+**/crsp*.parquet
+**/comp*.csv
+**/comp*.parquet
+**/*compustat*
+wrds_*.csv
+wrds_*.json
+wrds_*.parquet
+wrds_*_output.txt
+us_sample*
+.pgpass
+
+# ======================================================================
+# Credentials
+# ======================================================================
+*.env
+.env
+secrets*
+credentials*
+*_password*
+
+# ======================================================================
+# Market data and derived caches. Large, rebuildable, and not ours to
+# redistribute.
+# ======================================================================
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/cache/
+*.pkl
+
+# ======================================================================
+# Local run artefacts
+# ======================================================================
+output/
+my_portfolio.json
+_私人_*
+
+# results/ IS committed -- it holds aggregate statistics and charts only.
+# These two are large intermediate dumps, not results.
+results/_panel_*.pkl
+results/*.csv
+
+# ======================================================================
+# Python
+# ======================================================================
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ======================================================================
+# OS / editor
+# ======================================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/

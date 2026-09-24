@@ -1,0 +1,31 @@
+# Core -- required by everything, including the test suite.
+numpy>=1.24
+pandas>=2.0
+
+# Charts. Optional: every script degrades gracefully to JSON-only output
+# if matplotlib is absent.
+matplotlib>=3.7
+
+# Used for skewness/kurtosis in the Deflated Sharpe Ratio and for the
+# normal quantile function. stats_tools.py falls back to a local rational
+# approximation if scipy is unavailable, so this is optional too.
+scipy>=1.10
+
+# Test runner. tests/run_tests.py runs the whole suite without it, so this
+# is only needed if you prefer `pytest -q`.
+# pytest>=7.0
+
+# ----------------------------------------------------------------------
+# Data acquisition for the A-share database (code/build_db.py). Not needed
+# to run the research layer against an existing database, and not needed
+# for the test suite.
+# baostock>=0.8.8
+# akshare>=1.12
+
+# US control sample via WRDS. code/wrds_conn.py connects straight to the
+# WRDS PostgreSQL endpoint and will use whichever of these is installed,
+# preferring psycopg v3. pg8000 is pure Python and never needs a compiler,
+# which matters on Windows and on Python versions without prebuilt wheels.
+# psycopg[binary]>=3.1
+# psycopg2-binary>=2.9
+# pg8000>=1.30

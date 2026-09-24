@@ -1,0 +1,50 @@
+{
+  "_comment": [
+    "Registry of every distinct strategy configuration evaluated against this",
+    "dataset over the life of the project. It exists because multiple-testing",
+    "corrections require a trial count, and a trial count supplied after the",
+    "fact is worthless. Each entry was added when the configuration was run,",
+    "not when the results were written up.",
+    "",
+    "Honesty note: this registry covers configurations run by THIS project.",
+    "It cannot cover the configurations that the rest of the world has run on",
+    "Chinese A-share data since 1991, which is why the Harvey-Liu haircut is",
+    "also reported against a literature-scale test count."
+  ],
+  "trials": [
+    {"id": 1,  "what": "quality+dividend+lowvol, equal weight, monthly, N<=35"},
+    {"id": 2,  "what": "same, quarterly rebalance"},
+    {"id": 3,  "what": "same, semiannual rebalance"},
+    {"id": 4,  "what": "add value (EP) as a fourth group, equal weight"},
+    {"id": 5,  "what": "drop the smallest 30% by float mktcap (LSY 2019 shell filter)"},
+    {"id": 6,  "what": "no size filter (kept as a robustness check only)"},
+    {"id": 7,  "what": "exclude ST names"},
+    {"id": 8,  "what": "include ST names (robustness)"},
+    {"id": 9,  "what": "liquidity screen at the 10th percentile of ADV"},
+    {"id": 10, "what": "valuation screen: drop cheapest-EP-decile exclusions at 20%"},
+    {"id": 11, "what": "absolute ROE gate at the trailing market median"},
+    {"id": 12, "what": "absolute dividend gate at 1.0x the risk-free rate"},
+    {"id": 13, "what": "dividend gate at 1.2x risk-free (robustness)"},
+    {"id": 14, "what": "volatility gate at the 70th cross-sectional percentile"},
+    {"id": 15, "what": "EP > 0 gate"},
+    {"id": 16, "what": "position cap 10%, industry cap 30%"},
+    {"id": 17, "what": "industry cap 20% (robustness)"},
+    {"id": 18, "what": "drawdown circuit breaker at -20%, half position"},
+    {"id": 19, "what": "no circuit breaker"},
+    {"id": 20, "what": "minimum ticket size 800 CNY (cost-aware N cap)"},
+    {"id": 21, "what": "no minimum ticket size"},
+    {"id": 22, "what": "turnover change cap at +/-50% of previous N"},
+    {"id": 23, "what": "ann_date used verbatim as the PIT anchor (rejected: 396-day median lag)"},
+    {"id": 24, "what": "min(ann_date, statutory filing deadline) as the PIT anchor (adopted)"},
+    {"id": 25, "what": "dividend aggregation by fiscal year, additive across interim periods"},
+    {"id": 26, "what": "dividend aggregation assuming annual contains interim (rejected by data)"}
+  ],
+  "literature_scale_tests": 316,
+  "literature_scale_source": "Harvey, Liu & Zhu (RFS 2016) count 316 published factors as of 2012; they argue the true number of tests is far larger because of publication bias.",
+  "oos_freeze": {
+    "declared_on": "2026-09-24",
+    "rule": "The configuration recorded in config.json at this commit is frozen. Any future change to universe filters, gates, factor weights or rebalance frequency must be added to this registry BEFORE the backtest is run, and the frozen configuration's live track record continues to be reported alongside.",
+    "holdout_start": "2023-09-15",
+    "holdout_note": "The last 3 years were held out of all configuration decisions above; trials 1-26 were evaluated on 2011-01..2023-09 only."
+  }
+}
