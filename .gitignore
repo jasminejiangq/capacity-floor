@@ -84,3 +84,15 @@ Thumbs.db
 desktop.ini
 .idea/
 .vscode/
+
+# ======================================================================
+# Local-only files: chat download folder, stale "-1" duplicates Windows
+# creates when a download collides with an existing name, and one-off
+# repo-repair scripts that describe this repository's history rather
+# than its research.
+# ======================================================================
+Claude outputs/
+*-1.py
+*-1.bat
+24_推送GitHub.bat
+25_修复仓库_删除文献后重建.bat
