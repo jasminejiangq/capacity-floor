@@ -36,6 +36,15 @@ Design decisions worth defending
   arbitrary and often statistically inefficient; a result that only exists
   at one J is not a result.
 * Monotonicity is tested with Patton & Timmermann (2010), not eyeballed.
+* Two different horizon curves are reported, because conflating them is an
+  easy and consequential mistake. `rank_ic_mean` at horizon h is the IC
+  against the CUMULATIVE return from the rebalance date to h periods later;
+  it rises with h for any persistent signal and says how long the ranking
+  keeps paying. `marginal_rank_ic_mean` is the IC against quarter h ALONE,
+  which is the quantity that decays and the one Qian, Hua & Sorensen (2007)
+  mean by IC decay. An earlier version of this file computed only the first
+  and labelled it "IC decay", which would have been read as a claim that the
+  signal strengthens with age. It does not; it persists.
 """
 
 from __future__ import annotations
@@ -56,7 +65,9 @@ sys.path.insert(0, HERE)
 
 import engine as E                        # noqa: E402
 import settings                            # noqa: E402
-from stats_tools import icir, newey_west_t, mr_test   # noqa: E402
+from stats_tools import (                              # noqa: E402
+    icir, newey_west_t, mr_test, spearman_ic,
+)
 from signals import build_panel                        # noqa: E402
 
 RESULTS = os.path.join(ROOT, "results")
@@ -90,7 +101,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--buckets", type=int, nargs="*", default=[10, 20])
     ap.add_argument("--horizons", type=int, default=6,
-                    help="IC decay measured out to this many rebalances")
+                    help="horizons, in rebalance periods, to measure out to")
     ap.add_argument("--boot", type=int, default=1000)
     ap.add_argument("--no-cache", action="store_true")
     args = ap.parse_args()
@@ -152,17 +163,36 @@ def main() -> int:
     for name in FACTORS + ["综合"]:
         rec: dict = {"name_en": FACTOR_EN[name]}
         for h in range(1, H + 1):
-            rank_ic, pear_ic = [], []
+            rank_ic, pear_ic, marg_ic = [], [], []
             for d in dates:
                 s = scores[name].get(d)
                 r = fwd[h].get(d)
                 if s is None or r is None or not len(r):
                     continue
+                # Marginal return: what the h-th quarter alone paid, backed
+                # out of the two cumulative returns. fwd[h] is the return
+                # from d to d+h, so
+                #     (1 + fwd_h) / (1 + fwd_{h-1}) - 1
+                # is the return over quarter h by itself.
+                if h == 1:
+                    rm = r
+                else:
+                    prev = fwd[h - 1].get(d)
+                    rm = None
+                    if prev is not None and len(prev):
+                        j = r.index.intersection(prev.index)
+                        if len(j):
+                            rm = (1.0 + r.reindex(j)) / (1.0 + prev.reindex(j)) - 1.0
+                            rm = rm[np.isfinite(rm)]
+                if rm is not None and len(rm) > 30:
+                    cm = s.dropna().index.intersection(rm.index)
+                    if len(cm) >= 30:
+                        marg_ic.append(spearman_ic(s.reindex(cm), rm.reindex(cm)))
                 common = s.dropna().index.intersection(r.index)
                 if len(common) < 30:
                     continue
                 a, b = s.reindex(common), r.reindex(common)
-                rank_ic.append(float(a.corr(b, method="spearman")))
+                rank_ic.append(spearman_ic(a, b))
                 pear_ic.append(float(a.corr(b, method="pearson")))
             if len(rank_ic) < 8:
                 continue
@@ -170,7 +200,11 @@ def main() -> int:
             st = icir(arr, f_per_year)
             # horizon-h ICs overlap by h-1 periods -> tell Newey-West
             nw = newey_west_t(arr, lags=max(h - 1, 0) or None)
+            marg = np.array([x for x in marg_ic if np.isfinite(x)], dtype=float)
             rec[f"h{h}"] = {
+                "marginal_rank_ic_mean": float(marg.mean()) if marg.size else None,
+                "marginal_t_newey_west": (newey_west_t(marg)["t"]
+                                          if marg.size > 8 else None),
                 "rank_ic_mean": st["ic_mean"],
                 "pearson_ic_mean": float(np.nanmean(pear_ic)),
                 "ic_std": st["ic_std"],
@@ -185,6 +219,11 @@ def main() -> int:
                 "ic_series": [round(float(x), 4) for x in arr],
             }
         if "h1" in rec:
+            hs = sorted(int(k[1:]) for k in rec if k.startswith("h") and k[1:].isdigit())
+            cum = [rec[f"h{h}"]["rank_ic_mean"] for h in hs]
+            mar = [rec[f"h{h}"].get("marginal_rank_ic_mean") for h in hs]
+            rec["horizon_ic_cumulative"] = cum
+            rec["marginal_ic_by_quarter"] = mar
             a = rec["h1"]
             say(f"  {FACTOR_EN[name]:16s} {a['rank_ic_mean']:8.4f} "
                 f"{a['icir_annual']:9.3f} {a['t_newey_west']:7.2f} "
@@ -223,6 +262,7 @@ def main() -> int:
                 "monotone_in_sample": mr.get("monotone_in_sample"),
                 "n_steps_wrong_way": mr.get("n_steps_wrong_way"),
                 "monotonic": mr.get("monotonic"),
+                "flatness_rejected": mr.get("flatness_rejected"),
                 "verdict": mr.get("verdict"),
                 "n_periods": int(P.shape[0]),
             }
@@ -261,8 +301,10 @@ def _plot(out: dict) -> None:
         hs, ys = [], []
         for k, v in rec.items():
             if k.startswith("h") and isinstance(v, dict):
-                hs.append(int(k[1:]))
-                ys.append(v["rank_ic_mean"])
+                m = v.get("marginal_rank_ic_mean")
+                if m is not None:
+                    hs.append(int(k[1:]))
+                    ys.append(m)
         if hs:
             order = np.argsort(hs)
             ax.plot(np.array(hs)[order], np.array(ys)[order],
@@ -270,7 +312,7 @@ def _plot(out: dict) -> None:
     ax.axhline(0, color="k", lw=0.8)
     ax.set_xlabel("horizon (rebalance periods ahead)")
     ax.set_ylabel("mean Rank IC")
-    ax.set_title("IC decay")
+    ax.set_title("IC decay (quarter h alone)")
     ax.legend(fontsize=8)
     ax.grid(alpha=0.3)
 

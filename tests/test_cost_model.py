@@ -16,6 +16,7 @@ from _approx import approx        # noqa: E402
 from cost_model import (            # noqa: E402
     CostParams, PRESETS, annual_cost_rate, lower_bound, upper_bound,
     optimal_n, portfolio_vol, counterfactual,
+    capital_per_name, binding_minimum,
 )
 
 
@@ -177,3 +178,73 @@ def test_optimal_n_without_a_floor_ignores_capital():
     a = optimal_n(3_000, 0.06, 0.5, 4, p, 0.35, 0.30)["best"]["n"]
     b = optimal_n(1_000_000, 0.06, 0.5, 4, p, 0.35, 0.30)["best"]["n"]
     assert a == b
+
+
+# ----------------------------------------------------------------------
+# Two floors: the fee constraint and the lot constraint
+# ----------------------------------------------------------------------
+def test_capital_per_name_reproduces_a_min_exactly():
+    """A_min is linear in N, so it is really a per-position number. If these
+    two ever disagree, one of them has picked up a stray factor."""
+    p = CostParams()
+    g, tau, f = 0.0664, 0.4681, 4.0
+    per_name = capital_per_name(g, tau, f, p)
+    for n in (1, 3, 8, 12, 30):
+        assert per_name * n == approx(lower_bound(g, n, tau, f, p)["a_min"],
+                                      rel=1e-9)
+
+
+def test_capital_per_name_is_independent_of_n():
+    p = CostParams()
+    a = capital_per_name(0.0664, 0.4681, 4.0, p)
+    b = capital_per_name(0.0664, 0.4681, 4.0, p)
+    assert a == approx(b)
+    assert a == approx(303.6, abs=0.5)
+
+
+def test_capital_per_name_is_infinite_when_alpha_cannot_cover_proportional():
+    p = CostParams(slippage=0.05)
+    assert capital_per_name(0.01, 0.5, 4.0, p) == float("inf")
+
+
+def test_lot_floor_binds_when_lots_are_expensive():
+    """A CNY 25 share is a CNY 2,500 lot. No amount of fee efficiency lets
+    you hold twelve of those on CNY 4,000 -- the broker rejects the order."""
+    p = CostParams()
+    out = binding_minimum(0.0664, 12, 0.4681, 4.0, p, lot_cost=2500)
+    assert out["binding_constraint"] == "lot"
+    assert out["minimum_account"] == approx(30000)
+    assert out["minimum_account"] > out["fee_only_minimum"]
+
+
+def test_fee_floor_binds_when_lots_are_cheap():
+    p = CostParams()
+    out = binding_minimum(0.0664, 12, 0.4681, 4.0, p, lot_cost=250)
+    assert out["binding_constraint"] == "fee"
+    assert out["minimum_account"] == approx(3643, abs=2)
+
+
+def test_the_two_floors_are_independent():
+    """US retail before October 2019: a per-trade fee floor and no lot
+    constraint at all (fractional shares). The fee floor must still bind,
+    which is what makes it a separate mechanism rather than a by-product of
+    A-share lot sizes."""
+    p = PRESETS["us_retail_pre2019"]
+    out = binding_minimum(0.0664, 12, 0.4681, 4.0, p, lot_cost=1.0)
+    assert out["binding_constraint"] == "fee"
+    assert out["fee_capital_per_name"] > 100
+
+    after = PRESETS["us_retail_post2019"]
+    out2 = binding_minimum(0.0664, 12, 0.4681, 4.0, after, lot_cost=1.0)
+    assert out2["fee_capital_per_name"] == approx(0.0)
+    assert out2["binding_constraint"] == "lot"
+
+
+def test_minimum_account_is_the_larger_of_the_two_never_the_sum():
+    """They are alternative requirements on the same capital, not additive
+    costs. Adding them would double-count."""
+    p = CostParams()
+    out = binding_minimum(0.0664, 12, 0.4681, 4.0, p, lot_cost=800)
+    assert out["minimum_account"] == approx(
+        max(out["fee_only_minimum"], out["lot_only_minimum"]))
+    assert out["minimum_account"] < out["fee_only_minimum"] + out["lot_only_minimum"]

@@ -56,6 +56,7 @@ import backtest as BT                    # noqa: E402
 from cost_model import (                 # noqa: E402
     CostParams, annual_cost_rate, lower_bound, upper_bound, optimal_n,
     counterfactual, a_min_sensitivity, PRESETS,
+    capital_per_name, binding_minimum,
 )
 
 RESULTS = os.path.join(ROOT, "results")
@@ -196,6 +197,13 @@ def cross_section_inputs(D, records: list, max_pairs: int = 4000) -> dict:
     adv = D.成交额[held].tail(250).mean()
     adv = adv[np.isfinite(adv) & (adv > 0)]
 
+    # One A-share position costs 100 x price, whether or not you want that
+    # much of it. This is a hard, mechanical floor on capital per position,
+    # entirely separate from the fee floor, and it usually binds harder.
+    # Uses the unadjusted price (amount/volume), never the back-adjusted one.
+    lot = D.真实价[held].tail(250).median() * 100.0
+    lot = lot[np.isfinite(lot) & (lot > 0)]
+
     return {
         "n_names": len(held),
         "avg_annual_vol": float(vol.mean()) if len(vol) else float("nan"),
@@ -203,6 +211,9 @@ def cross_section_inputs(D, records: list, max_pairs: int = 4000) -> dict:
         "avg_pairwise_corr": float(vals.mean()) if vals.size else float("nan"),
         "median_adv_cny": float(adv.median()) if len(adv) else float("nan"),
         "p10_adv_cny": float(adv.quantile(0.10)) if len(adv) else float("nan"),
+        "median_lot_cost_cny": float(lot.median()) if len(lot) else float("nan"),
+        "p25_lot_cost_cny": float(lot.quantile(0.25)) if len(lot) else float("nan"),
+        "p75_lot_cost_cny": float(lot.quantile(0.75)) if len(lot) else float("nan"),
     }
 
 
@@ -331,62 +342,134 @@ def main() -> int:
     say(f"        A_max(participation) CNY {hi['a_max_participation']:,.0f}")
     say(f"        A_max                CNY {hi['a_max']:,.0f}")
 
+    # ---- the second floor ----
+    lot_cost = xs.get("median_lot_cost_cny") or float("nan")
+    fee_pn = capital_per_name(g, tau, f_per_year, p)
+    say(f"\n        A_min is linear in N, so it is really a per-position")
+    say(f"        requirement -- and there are two of them:")
+    say(f"          fee floor   CNY {fee_pn:>9,.0f} per position "
+        f"(economic: the trade clears, you lose on it)")
+    if np.isfinite(lot_cost):
+        bm = binding_minimum(g, n0, tau, f_per_year, p, lot_cost)
+        say(f"          lot floor   CNY {lot_cost:>9,.0f} per position "
+            f"(mechanical: 100 shares, the broker rejects otherwise)")
+        say(f"        binding constraint: {bm['binding_constraint'].upper()}")
+        say(f"        minimum account for N={n0}: CNY {bm['minimum_account']:,.0f}"
+            f"   (fee alone {bm['fee_only_minimum']:,.0f}, "
+            f"lot alone {bm['lot_only_minimum']:,.0f})")
+        out["two_floors"] = bm
+    out["capital_per_name_fee"] = fee_pn
+
     # ---------- Step 4: empirical AUM grid ---------------------------
     bar("-")
     if args.quick:
-        grid = [2500, 5000, 10000, 50000, 200000, 1000000]
-        regimes = [("fixed_n", args.fixed_n)]
+        grid = [2000, 5000, 15000, 100000, 2000000]
+        small = [2000, 5000]
     else:
-        grid = [2000, 3000, 5000, 8000, 15000, 30000,
-                80000, 200000, 600000, 2000000]
-        regimes = [("fixed_n", args.fixed_n), ("adaptive_n", None)]
-    total = len(grid) * len(regimes)
-    say(f"  [4/6] empirical grid: {total} full backtests")
+        grid = [1000, 2000, 3000, 5000, 8000,
+                15000, 30000, 100000, 400000, 2000000]
+        small = [1000, 2000, 3000, 5000, 8000]
+
+    # Each AUM is run TWICE: once with costs, once with every cost set to
+    # zero, holding the AUM and the position-count rule identical. The
+    # difference between the two is then the cost effect and nothing else.
+    #
+    # The first version of this script compared every net run against a
+    # SINGLE gross run at N=12, which is not a control: at CNY 2,000 the
+    # lot-size constraint forces N down to 8, and an 8-name book is a
+    # different portfolio with a different gross return, not a 12-name book
+    # paying more fees. The confound was larger than the effect being
+    # measured.
+    regimes = [("fixed_n", grid), ("adaptive_n", small)]
+    total = 2 * sum(len(x) for _, x in regimes)
+    say(f"  [4/6] empirical grid: {total} backtests "
+        f"({total//2} AUM points x net/gross pairs)")
+    say("      adaptive_n is only run where it differs from fixed_n; above")
+    say("      the minimum-ticket threshold the two rules coincide exactly.")
 
     min_ticket_cfg = float(cfg.get("资金与成本", {}).get("单笔最小金额", 0.0))
     cap_cfg = int(cfg.get("调仓", {}).get("持仓上限", 12))
 
-    empirical = {}
-    done = 0
-    for regime, fixed in regimes:
+    def _set_regime(regime):
+        if regime == "fixed_n":
+            E.单笔最小金额 = 0.0
+            E.持仓上限 = args.fixed_n
+        else:
+            E.单笔最小金额 = min_ticket_cfg
+            E.持仓上限 = cap_cfg
+
+    def _summary(r, aum, costs_on):
+        m = BT.指标(r["净值"], bench)
+        nv = r["净值"]
+        nhold = [x["实际持仓数"] for x in r["调仓"] if x.get("实际持仓数")]
+        cost_cny = sum(float(x.get("买入成本", 0)) + float(x.get("卖出成本", 0))
+                       for x in r["调仓"])
+        years = float(m["年数"]) or 1.0
+        # The account compounds, so fees paid in year 15 are levied on a much
+        # larger book than fees paid in year 1. Dividing total fees by the
+        # OPENING balance overstates the drag by the growth factor -- here
+        # about 3.5x. The mean account value is the correct denominator.
+        mean_acct = float(nv.mean())
+        return {
+            "aum": aum, "costs_on": costs_on,
+            "cagr": float(m["年化"]),
+            "alpha": float(m["年化"]) - g_bench,
+            "sharpe": float(m["夏普"]), "max_dd": float(m["最大回撤"]),
+            "median_n": float(np.median(nhold)) if nhold else 0.0,
+            "mean_account_value": round(mean_acct, 2),
+            "total_cost_cny": round(cost_cny, 2),
+            "cost_rate_on_mean": round(cost_cny / mean_acct / years, 5)
+                                 if mean_acct > 0 else None,
+            "years": years,
+        }
+
+    empirical, done = {}, 0
+    for regime, aums in regimes:
         rows = []
-        for aum in grid:
-            if regime == "fixed_n":
-                E.单笔最小金额 = 0.0
-                E.持仓上限 = fixed
-            else:
-                E.单笔最小金额 = min_ticket_cfg
-                E.持仓上限 = cap_cfg
+        for aum in aums:
+            pair = {}
+            for costs_on in (True, False):
+                _set_regime(regime)
+                set_costs(saved if costs_on else
+                          {k: 0.0 for k in _COST_FIELDS})
+                t1 = time.time()
+                r = BT.跑一次(D, cal, aum, 静默=True, 记录明细=False)
+                pair["net" if costs_on else "gross"] = _summary(r, aum, costs_on)
+                done += 1
+                say(f"        [{done:2d}/{total}] {regime:11s} {aum:>9,} "
+                    f"{'net  ' if costs_on else 'gross'} "
+                    f"CAGR {pair['net' if costs_on else 'gross']['cagr']*100:6.2f}%  "
+                    f"({time.time()-t1:.0f}s)")
             set_costs(saved)
-            t1 = time.time()
-            r = BT.跑一次(D, cal, aum, 静默=True, 记录明细=False)
-            m = BT.指标(r["净值"], bench)
-            nhold = [x["实际持仓数"] for x in r["调仓"] if x.get("实际持仓数")]
-            cost_cny = sum(float(x.get("买入成本", 0)) + float(x.get("卖出成本", 0))
-                           for x in r["调仓"])
-            years = float(m["年数"]) or 1.0
-            row = {
-                "aum": aum,
-                "net_cagr": float(m["年化"]),
-                "net_alpha": float(m["年化"]) - g_bench,
-                "sharpe": float(m["夏普"]),
-                "max_dd": float(m["最大回撤"]),
-                "median_n": float(np.median(nhold)) if nhold else 0.0,
-                "total_cost_cny": round(cost_cny, 2),
-                "cost_drag_annual": round(cost_cny / aum / years, 4),
-                "predicted_cost_rate": round(annual_cost_rate(
-                    aum,
-                    int(np.median(nhold)) if nhold else 1,
-                    tau, f_per_year, p), 4),
-            }
+            net, gro = pair["net"], pair["gross"]
+            n = int(net["median_n"]) or 1
+            predicted = annual_cost_rate(net["mean_account_value"], n,
+                                         tau, f_per_year, p)
+            row = dict(net)
+            row.update({
+                "capital_per_name_realised": (net["aum"] / net["median_n"]
+                                              if net["median_n"] else None),
+                "gross_cagr_same_n": gro["cagr"],
+                "gross_alpha_same_n": gro["alpha"],
+                "cost_effect_on_cagr": round(gro["cagr"] - net["cagr"], 5),
+                "predicted_cost_rate": round(predicted, 5),
+                "model_error_pp": round(
+                    (net["cost_rate_on_mean"] or 0) - predicted, 5),
+                "net_alpha_vs_own_gross": round(net["alpha"], 5),
+                "viable": bool(net["alpha"] > 0),
+            })
             rows.append(row)
-            done += 1
-            say(f"        [{done:2d}/{total}] {regime:11s} AUM {aum:>9,}  "
-                f"N~{row['median_n']:.0f}  net {row['net_cagr']*100:6.2f}%  "
-                f"drag {row['cost_drag_annual']*100:5.2f}%  "
-                f"pred {row['predicted_cost_rate']*100:5.2f}%  "
-                f"({time.time()-t1:.0f}s)")
+            say(f"                 -> N~{row['median_n']:.0f}  "
+                f"cost {row['cost_rate_on_mean']*100:5.2f}%  "
+                f"pred {predicted*100:5.2f}%  "
+                f"err {row['model_error_pp']*100:+5.2f}pp  "
+                f"net alpha {row['alpha']*100:+6.2f}%")
         empirical[regime] = rows
+
+    # restore config state
+    E.应用配置(cfg)
+    set_costs(saved)
+
     out["empirical"] = empirical
 
     # restore config state
@@ -468,28 +551,36 @@ def _plot(out: dict) -> None:
     ax = axes[0]
     for regime, rows in out.get("empirical", {}).items():
         x = [r["aum"] for r in rows]
-        y = [r["net_alpha"] * 100 for r in rows]
-        ax.plot(x, y, marker="o", label=f"empirical ({regime})")
-    ax.axhline(0, color="k", lw=0.8)
+        ax.plot(x, [r["cost_rate_on_mean"] * 100 for r in rows],
+                marker="o", label=f"measured ({regime})")
+        ax.plot(x, [r["predicted_cost_rate"] * 100 for r in rows],
+                marker="x", ls="--", label=f"closed form ({regime})")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("AUM (CNY, log scale)")
+    ax.set_ylabel("annual cost, % of mean account value")
+    ax.set_title("Cost model vs realised fees")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3, which="both")
+
+    ax = axes[1]
+    for regime, rows in out.get("empirical", {}).items():
+        ax.plot([r["aum"] for r in rows],
+                [r["cost_effect_on_cagr"] * 100 for r in rows],
+                marker="o", label=f"gross - net CAGR ({regime})")
     a_min = out.get("closed_form", {}).get("lower", {}).get("a_min")
+    ga = out.get("gross", {}).get("alpha")
+    if ga:
+        ax.axhline(ga * 100, color="crimson", ls=":",
+                   label=f"gross alpha = {ga*100:.2f}%")
     if a_min:
         ax.axvline(a_min, color="crimson", ls="--",
                    label=f"closed-form $A_{{min}}$ = {a_min:,.0f}")
     ax.set_xscale("log")
     ax.set_xlabel("AUM (CNY, log scale)")
-    ax.set_ylabel("net annual excess return (%)")
-    ax.set_title("Capacity floor: net alpha vs AUM")
+    ax.set_ylabel("annual return handed to the broker (pp)")
+    ax.set_title("Where the alpha goes")
     ax.legend(fontsize=8)
-    ax.grid(alpha=0.3)
-
-    ax = axes[1]
-    o = out.get("optimal_n", [])
-    ax.plot([r["aum"] for r in o], [r["best_n"] for r in o], marker="s",
-            color="darkgreen")
-    ax.set_xscale("log")
-    ax.set_xlabel("AUM (CNY, log scale)")
-    ax.set_ylabel("optimal number of positions $N^*$")
-    ax.set_title("Diversification is not free under a per-trade floor")
     ax.grid(alpha=0.3)
 
     fig.tight_layout()

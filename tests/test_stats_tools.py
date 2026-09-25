@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _approx import approx                      # noqa: E402
 from stats_tools import (                       # noqa: E402
     newey_west_t, icir, deflated_sharpe, haircut_sharpe, mr_test, pbo_cscv,
+    spearman_ic,
 )
 
 
@@ -174,7 +175,8 @@ def test_mr_test_never_concludes_monotone_on_a_non_monotone_sample():
     out = mr_test(X, n_boot=400)
     assert out["monotone_in_sample"] is False
     assert out["monotonic"] is False
-    assert out["verdict"] == "not monotone in sample"
+    assert out["monotonic"] is False
+    assert "strictly monotone" not in out["verdict"]
 
 
 def test_mr_test_verdict_is_positive_only_when_both_conditions_hold():
@@ -184,4 +186,67 @@ def test_mr_test_verdict_is_positive_only_when_both_conditions_hold():
     assert out["monotone_in_sample"] is True
     assert out["p_value"] < 0.05
     assert out["monotonic"] is True
-    assert out["verdict"] == "monotone"
+    assert out["verdict"] == "strictly monotone, flatness rejected"
+    assert out["flatness_rejected"] is True
+
+
+# ----------------------------------------------------------------------
+def test_spearman_ic_matches_the_definition_with_ties():
+    """Spearman is Pearson on average-ranked data. Checked against a case
+    computed by hand rather than against another library, so the test does
+    not depend on the dependency this function exists to avoid."""
+    import pandas as pd
+    a = pd.Series([1.0, 2.0, 2.0, 4.0, 5.0])     # a tie at rank 2.5
+    b = pd.Series([10.0, 9.0, 8.0, 7.0, 6.0])    # strictly decreasing
+    ra = pd.Series([1.0, 2.5, 2.5, 4.0, 5.0])
+    rb = pd.Series([5.0, 4.0, 3.0, 2.0, 1.0])
+    expected = float(np.corrcoef(ra, rb)[0, 1])
+    assert spearman_ic(a, b) == approx(expected, abs=1e-12)
+
+
+def test_spearman_ic_is_invariant_to_monotone_transforms():
+    """The property that makes rank IC the right headline for fat-tailed
+    A-share returns: one limit-up name cannot drive it."""
+    import pandas as pd
+    rng = np.random.default_rng(3)
+    a = pd.Series(rng.normal(0, 1, 300))
+    b = pd.Series(rng.normal(0, 1, 300) + 0.4 * a)
+    base = spearman_ic(a, b)
+    blown = b.copy()
+    blown.iloc[0] = 1e6                      # one absurd outlier
+    assert spearman_ic(a, blown) == approx(base, abs=0.02)
+    assert abs(a.corr(blown) - a.corr(b)) > 0.05   # Pearson is not immune
+
+
+def test_spearman_ic_ranks_after_pairwise_deletion():
+    """Ranking each series over its own full support and only then dropping
+    incomplete pairs gives a different, wrong answer. This asserts the
+    order, because with complete inputs the bug is invisible."""
+    import pandas as pd
+    a = pd.Series([1.0, 2.0, 3.0, 4.0, np.nan, 6.0])
+    b = pd.Series([6.0, 5.0, 4.0, 3.0, 2.0, 1.0])
+    assert spearman_ic(a, b) == approx(-1.0, abs=1e-12)
+
+
+def test_spearman_ic_returns_nan_on_too_few_pairs():
+    import pandas as pd
+    a = pd.Series([1.0, np.nan, np.nan])
+    b = pd.Series([1.0, 2.0, 3.0])
+    assert math.isnan(spearman_ic(a, b))
+
+
+def test_mr_verdict_separates_flatness_rejection_from_strict_monotonicity():
+    """A pattern that rises decisively but inverts one adjacent step must
+    not be summarised as a negative result. This is the exact shape the
+    low-volatility factor produced on real data: p well under 0.05 with
+    one step out of nine going the wrong way."""
+    rng = np.random.default_rng(21)
+    mu = np.array([-0.015, -0.008, -0.004, 0.000, 0.0040,
+                   0.0038, 0.009, 0.014, 0.020, 0.030])  # step 5->6 inverted
+    X = rng.normal(0, 0.02, (300, 10)) + mu
+    out = mr_test(X, n_boot=800)
+    assert out["n_steps_wrong_way"] == 1
+    assert out["monotone_in_sample"] is False
+    assert out["flatness_rejected"] is True
+    assert "flatness rejected" in out["verdict"]
+    assert "inverted" in out["verdict"]

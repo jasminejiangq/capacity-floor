@@ -2,14 +2,15 @@
 numpy>=1.24
 pandas>=2.0
 
-# Charts. Optional: every script degrades gracefully to JSON-only output
-# if matplotlib is absent.
+# Charts. research/make_charts.py needs it; capacity.py and factor_eval.py
+# degrade gracefully to JSON-only output if it is absent.
 matplotlib>=3.7
 
-# Used for skewness/kurtosis in the Deflated Sharpe Ratio and for the
-# normal quantile function. stats_tools.py falls back to a local rational
-# approximation if scipy is unavailable, so this is optional too.
-scipy>=1.10
+# Optional. Used for skewness/kurtosis in the Deflated Sharpe Ratio and for
+# the normal quantile function; stats_tools.py falls back to a local rational
+# approximation without it. Rank IC is computed as Pearson-on-ranks rather
+# than via scipy, so the factor analysis runs on a bare install.
+# scipy>=1.10
 
 # Test runner. tests/run_tests.py runs the whole suite without it, so this
 # is only needed if you prefer `pytest -q`.

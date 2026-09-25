@@ -93,6 +93,89 @@ Three things follow immediately, and all three are testable:
    costs alone exceed gross alpha, the strategy is dead at every size and
    the floor never gets a chance to matter.
 
+## 2.4b Two floors, not one
+
+`A_min` is linear in `N`. That is not a footnote -- it means the bound is
+really a **per-position** requirement, and that quoting `A_min` without
+saying how many positions it assumes is meaningless:
+
+```
+A_min(N)  =  N  ·  2·f·τ·F / (g − f·τ·(d+2u+2s))
+          =  N  ·  CNY 303.6          for this strategy
+```
+
+Written that way, it lands in the same units as a second requirement that is
+easy to overlook and, in this market, usually binds harder.
+
+**A-shares trade in lots of 100 shares.** One position costs `100 × price`
+whether or not you want that much of it. There is no averaging it away and no
+partial lot. So there are two floors on capital per position:
+
+| | fee floor | lot floor |
+|---|---|---|
+| requirement | `2·f·τ·F / (g − f·τ·prop)` | `100 × price` |
+| nature | economic | mechanical |
+| hardness | soft — the trade clears, you lose money on it | hard — the broker rejects the order |
+| visible without measuring | no | yes |
+| constrains | whether `N` positions are **worth holding** | whether `N` positions are **holdable** |
+| for this strategy | CNY 304 | CNY 250 – 2,500 |
+
+The minimum account is `N` times **whichever is larger**, never the sum:
+they are alternative requirements on the same capital, and adding them would
+double-count. That is asserted as a test
+(`test_minimum_account_is_the_larger_of_the_two_never_the_sum`).
+
+### What the backtest actually did
+
+| account (CNY) | positions | capital per position | binding |
+|---|---|---|---|
+| 1,000 | 3 | 333 | lot |
+| 2,000 | 8 | **250** | **fee** |
+| 3,000 | 9 | 333 | lot |
+| 5,000 | 11 | 455 | lot |
+| 8,000 | 11 | 727 | lot |
+| 15,000 | 12 | 1,250 | the 12-position cap |
+
+The lot constraint binds at five of six sizes. The exception is instructive:
+at CNY 2,000 the selection rule found eight affordable names and bought all
+eight, putting CNY 250 into each -- **below the CNY 304 a position needs to
+pay for its own fees.** The book was over-diversified relative to what the
+fee schedule could support, which is the failure mode the fee floor exists to
+name.
+
+So the practical minimum for running this strategy as designed is not
+CNY 3,643 but about **CNY 15,000**, where the lot constraint stops limiting
+the book.
+
+### Why this does not collapse the result
+
+An obvious objection: if the lot constraint usually binds harder, is the fee
+floor just a by-product of A-share lot sizes?
+
+No, and the US case is what separates them. US retail has **no lot
+constraint** -- fractional shares are routine -- but carried a $4.95
+per-trade commission until October 2019, which is a fee floor with no lot
+floor:
+
+| | lot floor | fee floor |
+|---|---|---|
+| A-share retail | yes | yes |
+| US retail, pre-Oct-2019 | no | yes ($296 per position) |
+| US retail, post-Oct-2019 | no | no |
+
+The two mechanisms are independently present and independently removable.
+A-shares happen to carry both at once, which is exactly why they are easy to
+conflate there, and why the cross-market comparison is doing real work rather
+than decorating the result.
+
+What the lot constraint does change is the *interpretation* of the damage. At
+CNY 2,000 under the shipped sizing rule the book collapses to one name and
+loses 2.99% a year -- but its zero-cost twin loses 2.82%, so at that point
+the loss is concentration, not fees. Both floors push in the same direction:
+they limit how many positions a small account can carry, and the cost of that
+is borne as idiosyncratic risk rather than as a fee line. The fee floor is
+the one you cannot see without computing it.
+
 ## 2.5 Upper bound
 
 Above the breakpoint, commission is proportional and the binding
@@ -127,21 +210,76 @@ sigma_p(N) = sigma_bar * sqrt( rho + (1-rho)/N )
 ```
 
 and net Sharpe is `(g - cost(A,N)) / sigma_p(N)`. Maximising over `N`
-gives `N*(A)`. With representative A-share inputs the answer is stark:
+gives `N*(A)`. With the measured inputs for this strategy -- gross alpha
+6.64%, one-way turnover 46.8%, average name volatility 35.9%, average
+pairwise correlation 27.0%, quarterly rebalancing -- the answer is stark:
 
-| account | optimal N |
-|---|---|
-| CNY 3,000 | 2 |
-| CNY 300,000 | 26 |
+| account (CNY) | 2,000 | 5,000 | 20,000 | 50,000 | 100,000 | 200,000 | 400,000+ |
+|---|---|---|---|---|---|---|---|
+| optimal N | 2 | 3 | 8 | 13 | 20 | 29 | 40 |
 
-Holding twelve names on three thousand yuan is not prudence. It is a
-transfer to the broker.
+Holding twelve names on two thousand yuan is not prudence. It is a
+transfer to the broker. The shipped tool does something worse: its
+minimum-ticket rule combined with 100-share lots leaves it holding a
+single name at that account size, and the realised result over 16.5 years
+is -2.99% a year against +2.00% gross.
 
-Remove the floor and this dependence vanishes entirely — `N*` becomes
+Remove the floor and this dependence vanishes entirely -- `N*` becomes
 independent of `A`. That is asserted as a unit test
 (`test_optimal_n_without_a_floor_ignores_capital`), because it is the
 mechanism, and if it did not hold the model would not mean what this
 chapter says it means.
+
+## 2.7b Does the model survive contact with the backtest?
+
+Each account size is run twice: once with costs, once with every cost set
+to zero, holding the account size and the position-count rule identical.
+The difference is the cost effect and nothing else.
+
+The first version of this test compared every run against a *single*
+zero-cost run at N=12. That is not a control. At CNY 2,000 the lot-size
+constraint forces N down to 8, and an 8-name book is a different portfolio
+with a different gross return -- the confound was larger than the effect.
+
+A second error mattered more. Realised fees were divided by the *opening*
+balance, but the account compounds; over 16.5 years at these returns it
+grows about 3.5x, so fees paid late are levied on a much larger book. The
+correct denominator is the mean account value. With the opening balance
+the model looked wrong by several percentage points; with the mean account
+value, at the account sizes where the holding count is stable at 12:
+
+| account (CNY) | holdings | measured annual cost | closed form | error |
+|---|---|---|---|---|
+| 2,000,000 | 12 | 0.48% | 0.53% | -0.05pp |
+| 400,000 | 12 | 0.48% | 0.53% | -0.05pp |
+| 100,000 | 12 | 0.52% | 0.56% | -0.04pp |
+| 30,000 | 12 | 0.69% | 0.75% | -0.06pp |
+| 15,000 | 12 | 0.91% | 1.05% | -0.14pp |
+| 8,000 | 11 | 1.60% | 1.74% | -0.14pp |
+| 5,000 | 11 | 2.17% | 2.94% | -0.77pp |
+| 3,000 | 9 | 3.13% | 3.77% | -0.64pp |
+| 2,000 | 8 | 3.67% | 4.04% | -0.38pp |
+| 1,000 | 3 | 5.41% | 4.32% | +1.09pp |
+
+Within 0.14 percentage points wherever the holding count is stable at 12;
+up to about one point below CNY 8,000, where the count drifts between 3
+and 11 and a single median value is a coarse summary of a book whose size
+changed every quarter. The fee rate rises elevenfold from the largest
+account to the smallest with no change to the signal.
+
+One thing the paired design does *not* deliver. The difference between a
+run and its zero-cost twin was supposed to isolate the fee effect exactly.
+It does not, at small size: with fees switched off the account carries more
+cash, can afford different names, and drifts into a different portfolio.
+At CNY 8,000 the gross-minus-net CAGR gap is 3.34 points while the measured
+fee rate is 1.60% -- the remainder is selection, not fees. So the cost-rate
+comparison above is the validation; the CAGR difference is reported but is
+contaminated, and saying otherwise would be claiming a control that the
+experiment does not have.
+
+Both errors were mine, both were found by checking arithmetic that looked
+wrong rather than by assuming the model was, and both are recorded here
+rather than silently corrected.
 
 ## 2.8 The cross-market natural experiment
 
@@ -165,12 +303,12 @@ So the prediction is sharp and falsifiable:
 * A-share retail throughout: the lower bound exists and has never gone
   away.
 
-With `g = 5%`, `N = 12`, `tau = 50%`, quarterly:
+With the measured `g = 6.64%`, `N = 12`, `tau = 46.8%`, quarterly:
 
 | cost regime | per-trade floor | `A_min` |
 |---|---|---|
-| CN retail | CNY 5.00 | ~CNY 5,300 |
-| US retail, pre-2019 | $4.95 | ~$5,200 |
+| CN retail | CNY 5.00 | **CNY 3,643** |
+| US retail, pre-2019 | $4.95 | **$3,554** |
 | US retail, post-2019 | $0.00 | **does not exist** |
 
 The near-equality of the first two is not the point; the floors happen to

@@ -384,6 +384,87 @@ def a_min_sensitivity(n_values, g_values, tau: float, f: float,
     return rows
 
 
+# ----------------------------------------------------------------------
+# Two floors, not one
+# ----------------------------------------------------------------------
+# A_min is linear in N, so the whole content of the fee-based lower bound is
+# a single per-position number. That reframing matters, because it puts the
+# fee constraint into the same units as a second constraint that is easy to
+# overlook and often binds harder:
+#
+#   fee floor   capital a position must carry for its share of the fees not
+#               to exceed its share of the alpha.   Economic. Soft: the trade
+#               executes, you simply lose money on it.
+#
+#   lot floor   capital a position must carry to be buyable at all. Chinese
+#               A-shares trade in lots of 100 shares, so one position costs
+#               100 x price whether you want that much of it or not.
+#               Mechanical. Hard: the broker rejects the order.
+#
+# They are independent. US retail has no lot constraint (fractional shares
+# are routine) but did have a USD 4.95 per-trade commission until October
+# 2019 -- a fee floor with no lot floor. A-shares have both at once, which is
+# why they are easy to confuse there and why the US case is what separates
+# them.
+#
+# The real minimum account is N times whichever per-position requirement is
+# larger.
+
+def capital_per_name(g: float, tau: float, f: float, p: "CostParams") -> float:
+    """Capital one position must carry for fees not to eat its alpha.
+
+    Since
+
+        A_min(N) = N * 2*f*tau*F / (g - f*tau*(d+2u+2s))
+
+    is linear in N, the bound is really a per-position quantity and quoting
+    A_min without saying how many positions it assumes is meaningless. With
+    the measured inputs for this strategy it is about CNY 304 a name; the
+    familiar CNY 3,643 is simply that times twelve.
+    """
+    residual = g - f * p.proportional_rate(tau)
+    if residual <= 0:
+        return float("inf")
+    return 2.0 * f * tau * p.commission_floor / residual
+
+
+def lot_capital_per_name(lot_cost: float) -> float:
+    """Capital one position must carry to be buyable.
+
+    lot_cost is the cash price of one lot: 100 * share price in the A-share
+    market. There is no averaging away of this one -- a position is a whole
+    number of lots or it does not exist.
+    """
+    return float(lot_cost)
+
+
+def binding_minimum(g: float, n: int, tau: float, f: float,
+                    p: "CostParams", lot_cost: float) -> dict:
+    """Minimum viable account when both floors are respected.
+
+    Returns the two per-position requirements, which of them binds, and the
+    resulting minimum account for N positions. Reporting only the larger one
+    would hide the fact that they can swap places: the fee floor is fixed in
+    yuan, while the lot floor moves with the price of whatever the strategy
+    wants to hold.
+    """
+    fee_pn = capital_per_name(g, tau, f, p)
+    lot_pn = lot_capital_per_name(lot_cost)
+    binds = "fee" if fee_pn >= lot_pn else "lot"
+    per_name = max(fee_pn, lot_pn)
+    return {
+        "n": int(n),
+        "fee_capital_per_name": fee_pn,
+        "lot_capital_per_name": lot_pn,
+        "binding_constraint": binds,
+        "capital_per_name": per_name,
+        "minimum_account": per_name * n,
+        "fee_only_minimum": fee_pn * n,
+        "lot_only_minimum": lot_pn * n,
+    }
+
+
 __all__ = ["CostParams", "annual_cost_rate", "lower_bound", "upper_bound",
            "capacity_window", "portfolio_vol", "optimal_n",
-           "PRESETS", "counterfactual", "a_min_sensitivity"]
+           "PRESETS", "counterfactual", "a_min_sensitivity",
+           "capital_per_name", "lot_capital_per_name", "binding_minimum"]

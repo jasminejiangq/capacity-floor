@@ -6,45 +6,194 @@
     "fact is worthless. Each entry was added when the configuration was run,",
     "not when the results were written up.",
     "",
+    "Trials 1-26 were run before the 2026-09-24 freeze and are the count used",
+    "in the haircut and Deflated Sharpe calculations. Trials 27 onward are",
+    "REGISTERED BUT NOT RUN: they were written down, with a predicted",
+    "direction, before touching the data. Registering a trial has a cost,",
+    "because the count feeds the corrections -- which is the point of keeping",
+    "a register rather than a memory.",
+    "",
     "Honesty note: this registry covers configurations run by THIS project.",
-    "It cannot cover the configurations that the rest of the world has run on",
+    "It cannot cover the configurations the rest of the world has run on",
     "Chinese A-share data since 1991, which is why the Harvey-Liu haircut is",
+    "Trial 30 was prompted by a reader's objection rather than by the author, and is recorded that way: the lot constraint was visible in the data all along and had been treated as an implementation detail rather than as a co-equal bound.",
     "also reported against a literature-scale test count."
   ],
   "trials": [
-    {"id": 1,  "what": "quality+dividend+lowvol, equal weight, monthly, N<=35"},
-    {"id": 2,  "what": "same, quarterly rebalance"},
-    {"id": 3,  "what": "same, semiannual rebalance"},
-    {"id": 4,  "what": "add value (EP) as a fourth group, equal weight"},
-    {"id": 5,  "what": "drop the smallest 30% by float mktcap (LSY 2019 shell filter)"},
-    {"id": 6,  "what": "no size filter (kept as a robustness check only)"},
-    {"id": 7,  "what": "exclude ST names"},
-    {"id": 8,  "what": "include ST names (robustness)"},
-    {"id": 9,  "what": "liquidity screen at the 10th percentile of ADV"},
-    {"id": 10, "what": "valuation screen: drop cheapest-EP-decile exclusions at 20%"},
-    {"id": 11, "what": "absolute ROE gate at the trailing market median"},
-    {"id": 12, "what": "absolute dividend gate at 1.0x the risk-free rate"},
-    {"id": 13, "what": "dividend gate at 1.2x risk-free (robustness)"},
-    {"id": 14, "what": "volatility gate at the 70th cross-sectional percentile"},
-    {"id": 15, "what": "EP > 0 gate"},
-    {"id": 16, "what": "position cap 10%, industry cap 30%"},
-    {"id": 17, "what": "industry cap 20% (robustness)"},
-    {"id": 18, "what": "drawdown circuit breaker at -20%, half position"},
-    {"id": 19, "what": "no circuit breaker"},
-    {"id": 20, "what": "minimum ticket size 800 CNY (cost-aware N cap)"},
-    {"id": 21, "what": "no minimum ticket size"},
-    {"id": 22, "what": "turnover change cap at +/-50% of previous N"},
-    {"id": 23, "what": "ann_date used verbatim as the PIT anchor (rejected: 396-day median lag)"},
-    {"id": 24, "what": "min(ann_date, statutory filing deadline) as the PIT anchor (adopted)"},
-    {"id": 25, "what": "dividend aggregation by fiscal year, additive across interim periods"},
-    {"id": 26, "what": "dividend aggregation assuming annual contains interim (rejected by data)"}
+    {
+      "id": 1,
+      "what": "quality+dividend+lowvol, equal weight, monthly, N<=35",
+      "status": "run"
+    },
+    {
+      "id": 2,
+      "what": "same, quarterly rebalance",
+      "status": "run"
+    },
+    {
+      "id": 3,
+      "what": "same, semiannual rebalance",
+      "status": "run"
+    },
+    {
+      "id": 4,
+      "what": "add value (EP) as a fourth group, equal weight",
+      "status": "run"
+    },
+    {
+      "id": 5,
+      "what": "drop the smallest 30% by float mktcap (LSY 2019 shell filter)",
+      "status": "run"
+    },
+    {
+      "id": 6,
+      "what": "no size filter (kept as a robustness check only)",
+      "status": "run"
+    },
+    {
+      "id": 7,
+      "what": "exclude ST names",
+      "status": "run"
+    },
+    {
+      "id": 8,
+      "what": "include ST names (robustness)",
+      "status": "run"
+    },
+    {
+      "id": 9,
+      "what": "liquidity screen at the 10th percentile of ADV",
+      "status": "run"
+    },
+    {
+      "id": 10,
+      "what": "valuation screen: exclude the cheapest-EP 20%",
+      "status": "run"
+    },
+    {
+      "id": 11,
+      "what": "absolute ROE gate at the trailing market median",
+      "status": "run"
+    },
+    {
+      "id": 12,
+      "what": "absolute dividend gate at 1.0x the risk-free rate",
+      "status": "run"
+    },
+    {
+      "id": 13,
+      "what": "dividend gate at 1.2x risk-free (robustness)",
+      "status": "run"
+    },
+    {
+      "id": 14,
+      "what": "volatility gate at the 70th cross-sectional percentile",
+      "status": "run"
+    },
+    {
+      "id": 15,
+      "what": "EP > 0 gate",
+      "status": "run"
+    },
+    {
+      "id": 16,
+      "what": "position cap 10%, industry cap 30%",
+      "status": "run"
+    },
+    {
+      "id": 17,
+      "what": "industry cap 20% (robustness)",
+      "status": "run"
+    },
+    {
+      "id": 18,
+      "what": "drawdown circuit breaker at -20%, half position",
+      "status": "run"
+    },
+    {
+      "id": 19,
+      "what": "no circuit breaker",
+      "status": "run"
+    },
+    {
+      "id": 20,
+      "what": "minimum ticket size 800 CNY (cost-aware N cap)",
+      "status": "run"
+    },
+    {
+      "id": 21,
+      "what": "no minimum ticket size",
+      "status": "run"
+    },
+    {
+      "id": 22,
+      "what": "turnover change cap at +/-50% of previous N",
+      "status": "run"
+    },
+    {
+      "id": 23,
+      "what": "ann_date used verbatim as the PIT anchor (rejected: 396-day median lag)",
+      "status": "run"
+    },
+    {
+      "id": 24,
+      "what": "min(ann_date, statutory filing deadline) as the PIT anchor (adopted)",
+      "status": "run"
+    },
+    {
+      "id": 25,
+      "what": "dividend aggregation by fiscal year, additive across interim periods",
+      "status": "run"
+    },
+    {
+      "id": 26,
+      "what": "dividend aggregation assuming annual contains interim (rejected by data)",
+      "status": "run"
+    },
+    {
+      "id": 27,
+      "what": "drop the quality factor from the composite (equal weight over the remaining three)",
+      "status": "registered, not run",
+      "registered_on": "2026-09-25",
+      "motivation": "docs/05 section 5.1: quality has Rank IC 0.0055, Newey-West t = 0.49, hit rate 49.2%, and marginal IC turning negative by quarter four. It carries 25% of the composite weight.",
+      "prediction": "Composite Rank IC rises from 0.0687 toward the 0.07-0.08 range and its t rises above 5.59; portfolio Sharpe improves by less than the IC does, because costs and constraints are unchanged.",
+      "why_not_run": "The quality result was measured on the same sample that would justify removing it. Running this now and reporting the improved composite would be fitting the data twice and presenting the second fit as a discovery. To be evaluated on the frozen holdout."
+    },
+    {
+      "id": 28,
+      "what": "annual rather than quarterly rebalancing",
+      "status": "registered, not run",
+      "registered_on": "2026-09-25",
+      "motivation": "docs/05 section 5.2: marginal Rank IC at quarter six is still 54% of quarter one for low volatility and 60% for the composite. A_min is linear in rebalance frequency f.",
+      "prediction": "A_min falls below CNY 2,000 (from CNY 3,643) for any measured annual turnover tau1 <= 1.0; net CAGR at small account sizes improves; gross alpha falls somewhat because the signal is sampled less often.",
+      "how_to_test": "Set 调仓频率 to \"年\" in config.json and re-run research/capacity.py, which measures tau1 rather than assuming it."
+    },
+    {
+      "id": 29,
+      "what": "low volatility as an exclusion rule (drop the most volatile decile) rather than a ranking",
+      "status": "registered, not run",
+      "registered_on": "2026-09-25",
+      "motivation": "docs/05 section 5.4: the decile-1-to-decile-2 step is 1.45pp of the 3.18pp total spread -- 46% of the effect in one of nine steps. An exclusion turns over far less often than a ranking.",
+      "prediction": "Captures roughly half the decile spread at materially lower turnover, so net alpha at small account sizes improves even though gross alpha falls."
+    },
+    {
+      "id": 30,
+      "what": "solve the lot constraint and the fee floor jointly, rather than reporting the fee floor alone",
+      "status": "registered, not run",
+      "registered_on": "2026-09-25",
+      "motivation": "docs/02 section 2.4b: A-shares trade in lots of 100 shares, so capital per position has a second, mechanical floor of 100 x price. Measured lot costs for the names this strategy holds run CNY 250 to 2,500 against a fee requirement of CNY 304, so the lot constraint binds at five of six tested account sizes. The published A_min reports only the fee side.",
+      "prediction": "The jointly-solved minimum is materially higher than CNY 3,643 -- around CNY 15,000 for a 12-position book -- and the fee floor becomes the binding constraint only where the strategy selects unusually cheap names.",
+      "how_to_test": "research/capacity.py now measures median_lot_cost_cny from the names actually held and reports binding_minimum(); re-running it produces the joint answer. The closed form and its tests are already in cost_model.py."
+    }
   ],
+  "n_trials_for_corrections": 26,
+  "n_trials_note": "Only trials with status 'run' count toward the multiple-testing corrections. Registered-but-unrun trials are listed so that the count is honest when they are run.",
   "literature_scale_tests": 316,
   "literature_scale_source": "Harvey, Liu & Zhu (RFS 2016) count 316 published factors as of 2012; they argue the true number of tests is far larger because of publication bias.",
   "oos_freeze": {
     "declared_on": "2026-09-24",
-    "rule": "The configuration recorded in config.json at this commit is frozen. Any future change to universe filters, gates, factor weights or rebalance frequency must be added to this registry BEFORE the backtest is run, and the frozen configuration's live track record continues to be reported alongside.",
+    "rule": "The configuration recorded in config.json at this commit is frozen. Any future change to universe filters, gates, factor weights or rebalance frequency must be added to this registry BEFORE the backtest is run, with a predicted direction, and the frozen configuration's record continues to be reported alongside.",
     "holdout_start": "2023-09-15",
-    "holdout_note": "The last 3 years were held out of all configuration decisions above; trials 1-26 were evaluated on 2011-01..2023-09 only."
+    "holdout_note": "The last 3 years were held out of all configuration decisions in trials 1-26; those trials were evaluated on 2011-01..2023-09 only."
   }
 }

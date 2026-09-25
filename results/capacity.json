@@ -1,0 +1,786 @@
+{
+  "generated": "2026-09-24 19:00:13",
+  "rebalance_freq": "季",
+  "rebalances_per_year": 4,
+  "cost_params": {
+    "commission_rate": 0.00015,
+    "commission_floor": 5.0,
+    "stamp_duty": 0.0005,
+    "transfer_fee": 1e-05,
+    "slippage": 0.001
+  },
+  "sample": {
+    "start": "2010-01-04",
+    "end": "2026-09-16",
+    "n_rebalances": 67
+  },
+  "gross": {
+    "metrics": {
+      "起": "2010-03-31",
+      "止": "2026-09-16",
+      "年数": 16.46,
+      "总收益": 2.7907,
+      "年化": 0.0843,
+      "最大回撤": -0.4011,
+      "Calmar": 0.21,
+      "夏普": 0.489,
+      "月胜率": 0.4949,
+      "最差连续12个月": -0.2233,
+      "分年度": {
+        "2010": 0.0,
+        "2011": -0.1995,
+        "2012": -0.0009,
+        "2013": 0.0522,
+        "2014": 1.0833,
+        "2015": 0.449,
+        "2016": 0.0541,
+        "2017": 0.1119,
+        "2018": -0.153,
+        "2019": 0.1144,
+        "2020": 0.2337,
+        "2021": 0.2033,
+        "2022": -0.1795,
+        "2023": 0.0101,
+        "2024": 0.0388,
+        "2025": 0.0664,
+        "2026": -0.0393
+      },
+      "基准年化": 0.0179,
+      "累计超额": 1.8307,
+      "基准最大回撤": -0.467,
+      "滚动3年跑赢基准比例": 0.593
+    },
+    "alpha": 0.0664,
+    "turnover_drifted": {
+      "mean": 0.4681455209141686,
+      "median": 0.46001479029655457,
+      "p10": 0.29730669856071473,
+      "p90": 0.6350215435028076,
+      "n": 63,
+      "series": [
+        0.4488,
+        0.3038,
+        0.6994,
+        0.4022,
+        0.0585,
+        0.8185,
+        0.0445,
+        0.4194,
+        0.5584,
+        0.4396,
+        0.6365,
+        0.2952,
+        0.6652,
+        0.5771,
+        0.6229,
+        0.6901,
+        0.5931,
+        0.5576,
+        0.6292,
+        0.3409,
+        0.5362,
+        0.4002,
+        0.525,
+        0.3456,
+        0.4688,
+        0.6292,
+        0.46,
+        0.2624,
+        0.436,
+        0.5124,
+        0.4612,
+        0.5232,
+        0.3028,
+        0.4097,
+        0.4585,
+        0.4376,
+        0.3174,
+        0.5702,
+        0.5917,
+        0.4099,
+        0.3591,
+        0.334,
+        0.6078,
+        0.3828,
+        0.5409,
+        0.5323,
+        0.4371,
+        0.4309,
+        0.428,
+        0.5777,
+        0.5217,
+        0.4161,
+        0.2602,
+        0.6606,
+        0.6854,
+        0.5338,
+        0.2861,
+        0.5837,
+        0.4515,
+        0.2959,
+        0.5255,
+        0.4716,
+        0.3119
+      ]
+    },
+    "turnover_naive": 0.45246111111111115
+  },
+  "cross_section": {
+    "n_names": 200,
+    "avg_annual_vol": 0.358684778213501,
+    "median_annual_vol": 0.34775906801223755,
+    "avg_pairwise_corr": 0.2695033805079945,
+    "median_adv_cny": 190891472.0,
+    "p10_adv_cny": 61733759.6
+  },
+  "closed_form": {
+    "n": 12,
+    "lower": {
+      "gross_alpha": 0.0664,
+      "annual_proportional_cost": 0.00471890685081482,
+      "residual_alpha": 0.061681093149185184,
+      "floor_breakpoint": 400000.00000000006,
+      "a_min": 3643.091238595686,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    "upper": {
+      "impact_budget_per_rebalance": 0.015279829631022045,
+      "a_max_impact": 1194971941.6394155,
+      "a_max_participation": 229069766.39999998,
+      "a_max": 229069766.39999998
+    },
+    "impact_inputs": {
+      "adv_cny": 190891472.0,
+      "daily_vol": 0.02259501719564957
+    }
+  },
+  "empirical": {
+    "fixed_n": [
+      {
+        "aum": 1000,
+        "costs_on": true,
+        "cagr": 0.0541,
+        "alpha": 0.0362,
+        "sharpe": 0.372,
+        "max_dd": -0.391,
+        "median_n": 3.0,
+        "mean_account_value": 1461.34,
+        "total_cost_cny": 1301.12,
+        "cost_rate_on_mean": 0.05409,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.1023,
+        "gross_alpha_same_n": 0.0844,
+        "cost_effect_on_cagr": 0.0482,
+        "predicted_cost_rate": 0.04316,
+        "model_error_pp": 0.01093,
+        "net_alpha_vs_own_gross": 0.0362,
+        "viable": true
+      },
+      {
+        "aum": 2000,
+        "costs_on": true,
+        "cagr": 0.0782,
+        "alpha": 0.060300000000000006,
+        "sharpe": 0.53,
+        "max_dd": -0.41,
+        "median_n": 8.0,
+        "mean_account_value": 4193.56,
+        "total_cost_cny": 2532.69,
+        "cost_rate_on_mean": 0.03669,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.1012,
+        "gross_alpha_same_n": 0.0833,
+        "cost_effect_on_cagr": 0.023,
+        "predicted_cost_rate": 0.04044,
+        "model_error_pp": -0.00375,
+        "net_alpha_vs_own_gross": 0.0603,
+        "viable": true
+      },
+      {
+        "aum": 3000,
+        "costs_on": true,
+        "cagr": 0.0593,
+        "alpha": 0.0414,
+        "sharpe": 0.43,
+        "max_dd": -0.4291,
+        "median_n": 9.0,
+        "mean_account_value": 5111.36,
+        "total_cost_cny": 2631.2,
+        "cost_rate_on_mean": 0.03127,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0837,
+        "gross_alpha_same_n": 0.0658,
+        "cost_effect_on_cagr": 0.0244,
+        "predicted_cost_rate": 0.03769,
+        "model_error_pp": -0.00642,
+        "net_alpha_vs_own_gross": 0.0414,
+        "viable": true
+      },
+      {
+        "aum": 5000,
+        "costs_on": true,
+        "cagr": 0.0557,
+        "alpha": 0.0378,
+        "sharpe": 0.41,
+        "max_dd": -0.397,
+        "median_n": 11.0,
+        "mean_account_value": 8358.12,
+        "total_cost_cny": 2984.1,
+        "cost_rate_on_mean": 0.02169,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0866,
+        "gross_alpha_same_n": 0.0687,
+        "cost_effect_on_cagr": 0.0309,
+        "predicted_cost_rate": 0.02936,
+        "model_error_pp": -0.00767,
+        "net_alpha_vs_own_gross": 0.0378,
+        "viable": true
+      },
+      {
+        "aum": 8000,
+        "costs_on": true,
+        "cagr": 0.0555,
+        "alpha": 0.0376,
+        "sharpe": 0.411,
+        "max_dd": -0.3027,
+        "median_n": 11.0,
+        "mean_account_value": 16235.11,
+        "total_cost_cny": 4279.86,
+        "cost_rate_on_mean": 0.01602,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0889,
+        "gross_alpha_same_n": 0.07100000000000001,
+        "cost_effect_on_cagr": 0.0334,
+        "predicted_cost_rate": 0.01741,
+        "model_error_pp": -0.00139,
+        "net_alpha_vs_own_gross": 0.0376,
+        "viable": true
+      },
+      {
+        "aum": 15000,
+        "costs_on": true,
+        "cagr": 0.0802,
+        "alpha": 0.062299999999999994,
+        "sharpe": 0.512,
+        "max_dd": -0.3239,
+        "median_n": 12.0,
+        "mean_account_value": 39123.08,
+        "total_cost_cny": 5844.2,
+        "cost_rate_on_mean": 0.00908,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0954,
+        "gross_alpha_same_n": 0.0775,
+        "cost_effect_on_cagr": 0.0152,
+        "predicted_cost_rate": 0.01046,
+        "model_error_pp": -0.00138,
+        "net_alpha_vs_own_gross": 0.0623,
+        "viable": true
+      },
+      {
+        "aum": 30000,
+        "costs_on": true,
+        "cagr": 0.085,
+        "alpha": 0.0671,
+        "sharpe": 0.508,
+        "max_dd": -0.3522,
+        "median_n": 12.0,
+        "mean_account_value": 81238.09,
+        "total_cost_cny": 9213.72,
+        "cost_rate_on_mean": 0.00689,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0893,
+        "gross_alpha_same_n": 0.0714,
+        "cost_effect_on_cagr": 0.0043,
+        "predicted_cost_rate": 0.00748,
+        "model_error_pp": -0.00059,
+        "net_alpha_vs_own_gross": 0.0671,
+        "viable": true
+      },
+      {
+        "aum": 100000,
+        "costs_on": true,
+        "cagr": 0.0789,
+        "alpha": 0.061,
+        "sharpe": 0.469,
+        "max_dd": -0.4008,
+        "median_n": 12.0,
+        "mean_account_value": 244475.91,
+        "total_cost_cny": 21051.36,
+        "cost_rate_on_mean": 0.00523,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0836,
+        "gross_alpha_same_n": 0.0657,
+        "cost_effect_on_cagr": 0.0047,
+        "predicted_cost_rate": 0.00564,
+        "model_error_pp": -0.00041,
+        "net_alpha_vs_own_gross": 0.061,
+        "viable": true
+      },
+      {
+        "aum": 400000,
+        "costs_on": true,
+        "cagr": 0.0794,
+        "alpha": 0.0615,
+        "sharpe": 0.469,
+        "max_dd": -0.4035,
+        "median_n": 12.0,
+        "mean_account_value": 982173.63,
+        "total_cost_cny": 77946.7,
+        "cost_rate_on_mean": 0.00482,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0845,
+        "gross_alpha_same_n": 0.0666,
+        "cost_effect_on_cagr": 0.0051,
+        "predicted_cost_rate": 0.00528,
+        "model_error_pp": -0.00046,
+        "net_alpha_vs_own_gross": 0.0615,
+        "viable": true
+      },
+      {
+        "aum": 2000000,
+        "costs_on": true,
+        "cagr": 0.0795,
+        "alpha": 0.0616,
+        "sharpe": 0.469,
+        "max_dd": -0.4044,
+        "median_n": 12.0,
+        "mean_account_value": 4914272.15,
+        "total_cost_cny": 386131.9,
+        "cost_rate_on_mean": 0.00477,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0843,
+        "gross_alpha_same_n": 0.0664,
+        "cost_effect_on_cagr": 0.0048,
+        "predicted_cost_rate": 0.00528,
+        "model_error_pp": -0.00051,
+        "net_alpha_vs_own_gross": 0.0616,
+        "viable": true
+      }
+    ],
+    "adaptive_n": [
+      {
+        "aum": 1000,
+        "costs_on": true,
+        "cagr": -0.0384,
+        "alpha": -0.056299999999999996,
+        "sharpe": -0.03,
+        "max_dd": -0.832,
+        "median_n": 1.0,
+        "mean_account_value": 797.87,
+        "total_cost_cny": 337.03,
+        "cost_rate_on_mean": 0.02566,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0133,
+        "gross_alpha_same_n": -0.0046,
+        "cost_effect_on_cagr": 0.0517,
+        "predicted_cost_rate": 0.02819,
+        "model_error_pp": -0.00253,
+        "net_alpha_vs_own_gross": -0.0563,
+        "viable": false
+      },
+      {
+        "aum": 2000,
+        "costs_on": true,
+        "cagr": -0.0299,
+        "alpha": -0.047799999999999995,
+        "sharpe": -0.027,
+        "max_dd": -0.7385,
+        "median_n": 1.0,
+        "mean_account_value": 1636.13,
+        "total_cost_cny": 647.65,
+        "cost_rate_on_mean": 0.02405,
+        "years": 16.46,
+        "gross_cagr_same_n": -0.0282,
+        "gross_alpha_same_n": -0.0461,
+        "cost_effect_on_cagr": 0.0017,
+        "predicted_cost_rate": 0.01616,
+        "model_error_pp": 0.00789,
+        "net_alpha_vs_own_gross": -0.0478,
+        "viable": false
+      },
+      {
+        "aum": 3000,
+        "costs_on": true,
+        "cagr": 0.0589,
+        "alpha": 0.041,
+        "sharpe": 0.403,
+        "max_dd": -0.429,
+        "median_n": 7.0,
+        "mean_account_value": 5530.69,
+        "total_cost_cny": 2531.68,
+        "cost_rate_on_mean": 0.02781,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0716,
+        "gross_alpha_same_n": 0.0537,
+        "cost_effect_on_cagr": 0.0127,
+        "predicted_cost_rate": 0.02842,
+        "model_error_pp": -0.00061,
+        "net_alpha_vs_own_gross": 0.041,
+        "viable": true
+      },
+      {
+        "aum": 5000,
+        "costs_on": true,
+        "cagr": 0.0581,
+        "alpha": 0.0402,
+        "sharpe": 0.431,
+        "max_dd": -0.3362,
+        "median_n": 10.0,
+        "mean_account_value": 9414.48,
+        "total_cost_cny": 3273.38,
+        "cost_rate_on_mean": 0.02112,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.0857,
+        "gross_alpha_same_n": 0.0678,
+        "cost_effect_on_cagr": 0.0276,
+        "predicted_cost_rate": 0.02461,
+        "model_error_pp": -0.00349,
+        "net_alpha_vs_own_gross": 0.0402,
+        "viable": true
+      },
+      {
+        "aum": 8000,
+        "costs_on": true,
+        "cagr": 0.0877,
+        "alpha": 0.0698,
+        "sharpe": 0.581,
+        "max_dd": -0.2871,
+        "median_n": 12.0,
+        "mean_account_value": 22961.85,
+        "total_cost_cny": 4662.51,
+        "cost_rate_on_mean": 0.01234,
+        "years": 16.46,
+        "gross_cagr_same_n": 0.1,
+        "gross_alpha_same_n": 0.0821,
+        "cost_effect_on_cagr": 0.0123,
+        "predicted_cost_rate": 0.01451,
+        "model_error_pp": -0.00217,
+        "net_alpha_vs_own_gross": 0.0698,
+        "viable": true
+      }
+    ]
+  },
+  "optimal_n": [
+    {
+      "aum": 2000,
+      "best_n": 2,
+      "net_alpha": 0.042761589861659226,
+      "annual_cost_rate": 0.023638410138340775,
+      "net_sharpe": 0.14963699019047047
+    },
+    {
+      "aum": 3000,
+      "best_n": 2,
+      "net_alpha": 0.04896000100298317,
+      "annual_cost_rate": 0.017439998997016825,
+      "net_sharpe": 0.17132728725733462
+    },
+    {
+      "aum": 5000,
+      "best_n": 3,
+      "net_alpha": 0.050195557678239244,
+      "annual_cost_rate": 0.016204442321760753,
+      "net_sharpe": 0.19538566644732705
+    },
+    {
+      "aum": 10000,
+      "best_n": 5,
+      "net_alpha": 0.05204427438196163,
+      "annual_cost_rate": 0.014355725618038368,
+      "net_sharpe": 0.22507166764204783
+    },
+    {
+      "aum": 20000,
+      "best_n": 8,
+      "net_alpha": 0.053884525970641,
+      "annual_cost_rate": 0.012515474029359,
+      "net_sharpe": 0.2500970404562901
+    },
+    {
+      "aum": 50000,
+      "best_n": 13,
+      "net_alpha": 0.05643253719441572,
+      "annual_cost_rate": 0.009967462805584285,
+      "net_sharpe": 0.2756835158239573
+    },
+    {
+      "aum": 100000,
+      "best_n": 20,
+      "net_alpha": 0.05750284185547827,
+      "annual_cost_rate": 0.008897158144521732,
+      "net_sharpe": 0.2897981641345579
+    },
+    {
+      "aum": 200000,
+      "best_n": 29,
+      "net_alpha": 0.05845721409302336,
+      "annual_cost_rate": 0.007942785906976639,
+      "net_sharpe": 0.30022048161407916
+    },
+    {
+      "aum": 400000,
+      "best_n": 40,
+      "net_alpha": 0.05919603337769354,
+      "annual_cost_rate": 0.0072039666223064625,
+      "net_sharpe": 0.3076522344834947
+    },
+    {
+      "aum": 1000000,
+      "best_n": 40,
+      "net_alpha": 0.05996364806092646,
+      "annual_cost_rate": 0.00643635193907354,
+      "net_sharpe": 0.31164166348817424
+    },
+    {
+      "aum": 5000000,
+      "best_n": 40,
+      "net_alpha": 0.05895388289212036,
+      "annual_cost_rate": 0.007446117107879637,
+      "net_sharpe": 0.3063937356666479
+    }
+  ],
+  "counterfactual": {
+    "cn_retail": {
+      "commission_floor": 5.0,
+      "commission_rate": 0.00015,
+      "a_min": 3643.091238595686,
+      "reason": "commission floor binds; lower bound is real",
+      "annual_proportional_cost": 0.00471890685081482,
+      "floor_breakpoint": 400000.00000000006
+    },
+    "us_retail_pre2019": {
+      "commission_floor": 4.95,
+      "commission_rate": 0.0,
+      "a_min": 3553.5603764745188,
+      "reason": "commission floor binds; lower bound is real",
+      "annual_proportional_cost": 0.0037972219492390046,
+      "floor_breakpoint": Infinity
+    },
+    "us_retail_post2019": {
+      "commission_floor": 0.0,
+      "commission_rate": 0.0,
+      "a_min": 0.0,
+      "reason": "no per-trade floor: costs are scale-invariant, no lower bound exists",
+      "annual_proportional_cost": 0.0037972219492390046,
+      "floor_breakpoint": 0.0
+    }
+  },
+  "a_min_sensitivity": [
+    {
+      "n": 3,
+      "gross_alpha": 0.02,
+      "a_min": 3676.272499699783,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 3,
+      "gross_alpha": 0.04,
+      "a_min": 1592.2823669934292,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 3,
+      "gross_alpha": 0.06,
+      "a_min": 1016.2147546195596,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 3,
+      "gross_alpha": 0.08,
+      "a_min": 746.2360090650235,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 3,
+      "gross_alpha": 0.1,
+      "a_min": 589.597166163292,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 3,
+      "gross_alpha": 0.15,
+      "a_min": 386.68116608961043,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 5,
+      "gross_alpha": 0.02,
+      "a_min": 6127.120832832971,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 5,
+      "gross_alpha": 0.04,
+      "a_min": 2653.8039449890484,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 5,
+      "gross_alpha": 0.06,
+      "a_min": 1693.6912576992659,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 5,
+      "gross_alpha": 0.08,
+      "a_min": 1243.726681775039,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 5,
+      "gross_alpha": 0.1,
+      "a_min": 982.6619436054864,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 5,
+      "gross_alpha": 0.15,
+      "a_min": 644.4686101493506,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 8,
+      "gross_alpha": 0.02,
+      "a_min": 9803.393332532754,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 8,
+      "gross_alpha": 0.04,
+      "a_min": 4246.086311982478,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 8,
+      "gross_alpha": 0.06,
+      "a_min": 2709.906012318825,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 8,
+      "gross_alpha": 0.08,
+      "a_min": 1989.9626908400626,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 8,
+      "gross_alpha": 0.1,
+      "a_min": 1572.2591097687782,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 8,
+      "gross_alpha": 0.15,
+      "a_min": 1031.149776238961,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 12,
+      "gross_alpha": 0.02,
+      "a_min": 14705.089998799132,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 12,
+      "gross_alpha": 0.04,
+      "a_min": 6369.129467973717,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 12,
+      "gross_alpha": 0.06,
+      "a_min": 4064.8590184782383,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 12,
+      "gross_alpha": 0.08,
+      "a_min": 2984.944036260094,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 12,
+      "gross_alpha": 0.1,
+      "a_min": 2358.388664653168,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 12,
+      "gross_alpha": 0.15,
+      "a_min": 1546.7246643584417,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 20,
+      "gross_alpha": 0.02,
+      "a_min": 24508.483331331885,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 20,
+      "gross_alpha": 0.04,
+      "a_min": 10615.215779956194,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 20,
+      "gross_alpha": 0.06,
+      "a_min": 6774.765030797063,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 20,
+      "gross_alpha": 0.08,
+      "a_min": 4974.906727100156,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 20,
+      "gross_alpha": 0.1,
+      "a_min": 3930.6477744219455,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 20,
+      "gross_alpha": 0.15,
+      "a_min": 2577.8744405974026,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 30,
+      "gross_alpha": 0.02,
+      "a_min": 36762.72499699784,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 30,
+      "gross_alpha": 0.04,
+      "a_min": 15922.823669934294,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 30,
+      "gross_alpha": 0.06,
+      "a_min": 10162.147546195596,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 30,
+      "gross_alpha": 0.08,
+      "a_min": 7462.360090650236,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 30,
+      "gross_alpha": 0.1,
+      "a_min": 5895.97166163292,
+      "reason": "commission floor binds; lower bound is real"
+    },
+    {
+      "n": 30,
+      "gross_alpha": 0.15,
+      "a_min": 3866.811660896105,
+      "reason": "commission floor binds; lower bound is real"
+    }
+  ]
+}

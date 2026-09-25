@@ -59,6 +59,37 @@ def _norm_ppf(q: float) -> float:
            (((((b[0]*s+b[1])*s+b[2])*s+b[3])*s+b[4])*s+1)
 
 
+def spearman_ic(a, b) -> float:
+    """Rank IC, computed without scipy.
+
+    pandas delegates its Spearman correlation to scipy.stats.spearmanr,
+    which quietly makes scipy a hard dependency for the headline number in
+    this file -- and it was not declared as one, because every other part
+    of the research layer runs on numpy and pandas alone. On a bare install
+    this script died at the first correlation, after loading the database.
+
+    Spearman's rho is Pearson's r on the ranks, and pandas ranks with
+    method="average" by default, which is exactly the tie handling Spearman
+    specifies. Computing it directly is therefore exact rather than an
+    approximation, and it keeps the script runnable with nothing installed
+    beyond the two packages the README claims it needs. A result that
+    requires a dependency hunt before it will run is a result nobody
+    reproduces.
+
+    One subtlety, caught by checking against scipy rather than assuming:
+    the ranks must be formed AFTER pairwise deletion. Ranking each series
+    over its own full support and only then dropping the incomplete pairs
+    gives a different answer -- up to 0.005 apart on random data with 10%
+    missing. Here the inputs are already complete, so it would not have
+    mattered, which is precisely why it would have gone unnoticed.
+    """
+    ok = a.notna() & b.notna()
+    if int(ok.sum()) < 3:
+        return float("nan")
+    x, y = a[ok], b[ok]
+    return float(x.rank().corr(y.rank(), method="pearson"))
+
+
 # ----------------------------------------------------------------------
 def newey_west_t(x, lags: int | None = None) -> dict:
     """t-statistic for mean(x) != 0, robust to serial correlation.
@@ -276,10 +307,30 @@ def mr_test(bucket_returns, n_boot: int = 1000, seed: int = 20260924) -> dict:
         "monotone_in_sample": monotone,
         "n_steps_wrong_way": int((diffs <= 0).sum()),
         "monotonic": bool(monotone and p_value < 0.05),
-        "verdict": ("monotone" if (monotone and p_value < 0.05) else
-                    "not monotone in sample" if not monotone else
-                    "monotone in sample but not significant"),
+        "flatness_rejected": bool(p_value < 0.05),
+        "verdict": _verdict(monotone, p_value, int((diffs <= 0).sum())),
     }
+
+
+def _verdict(monotone: bool, p_value: float, n_wrong: int) -> str:
+    """Report the two facts separately.
+
+    An earlier version collapsed them into one label and printed "not
+    monotone in sample" for a pattern with p = 0.007 and a single inverted
+    step out of nine -- which reads as a negative result when the test is
+    in fact rejecting flatness decisively. Strict all-steps-positive
+    monotonicity and rejection of the flat null are different claims, and
+    a summary that hides the stronger one is worse than no summary.
+    """
+    sig = p_value < 0.05
+    if monotone and sig:
+        return "strictly monotone, flatness rejected"
+    if sig:
+        return (f"increasing overall (flatness rejected, p={p_value:.3f}); "
+                f"{n_wrong} step(s) inverted")
+    if monotone:
+        return "monotone in sample, not significant"
+    return "no monotone relationship"
 
 
 # ----------------------------------------------------------------------
@@ -353,5 +404,5 @@ def pbo_cscv(perf_matrix, n_splits: int = 16, seed: int = 20260924) -> dict:
     }
 
 
-__all__ = ["newey_west_t", "icir", "deflated_sharpe", "haircut_sharpe",
+__all__ = ["spearman_ic", "newey_west_t", "icir", "deflated_sharpe", "haircut_sharpe",
            "mr_test", "pbo_cscv"]

@@ -1,0 +1,572 @@
+{
+  "generated": "2026-09-25 12:26:32",
+  "sample_years": 15.46,
+  "sharpe_annual": 0.55,
+  "t_statistic": 2.162556357647125,
+  "passes_t2": true,
+  "passes_t3_hlz": false,
+  "sharpe_needed_for_t2": 0.5086572639414618,
+  "sharpe_needed_for_t3": 0.7629858959121927,
+  "n_trials_own": 30,
+  "n_trials_literature_scale": 316,
+  "haircut_own": {
+    "t_observed": 2.162556357647125,
+    "p_observed": 0.030575318010363173,
+    "n_tests": 30,
+    "p_adjusted": 0.9172595403108952,
+    "t_adjusted": 0.10388634916564125,
+    "haircut": 0.9519613217023069,
+    "surviving_fraction": 0.04803867829769313,
+    "years": 15.46
+  },
+  "haircut_literature": {
+    "t_observed": 2.162556357647125,
+    "p_observed": 0.030575318010363173,
+    "n_tests": 316,
+    "p_adjusted": 1.0,
+    "t_adjusted": 0.0,
+    "haircut": 1.0,
+    "surviving_fraction": 0.0,
+    "years": 15.46
+  },
+  "daily_moments": {
+    "n_days": 3757,
+    "daily_skew": -0.3703668402555968,
+    "daily_kurtosis_nonexcess": 7.015453842745163,
+    "daily_mean": 0.00042418531015408855,
+    "daily_std": 0.01224909902934263
+  },
+  "deflated_sharpe_own": {
+    "sharpe_observed": 0.034646743359179166,
+    "n_trials": 30,
+    "expected_max_sharpe_under_null": 0.033831300374973255,
+    "dsr": 0.5197848571370057,
+    "z": 0.049613628887974666,
+    "note": "kurt must be NON-excess (3.0 = normal)"
+  },
+  "deflated_sharpe_literature": {
+    "sharpe_observed": 0.034646743359179166,
+    "n_trials": 316,
+    "expected_max_sharpe_under_null": 0.04751154262305292,
+    "dsr": 0.21689367284389555,
+    "z": -0.7827271664096506,
+    "note": "kurt must be NON-excess (3.0 = normal)"
+  },
+  "in_sample_excess": 0.067,
+  "out_of_sample": {
+    "起": "2023-09-15",
+    "止": "2026-09-15",
+    "年数": 3.0,
+    "总收益": -0.0001,
+    "年化": -0.0,
+    "最大回撤": -0.1764,
+    "Calmar": -0.0,
+    "夏普": 0.074,
+    "月胜率": 0.4722,
+    "最差连续12个月": -0.0567,
+    "分年度": {
+      "2023": -0.0126,
+      "2024": 0.0527,
+      "2025": 0.0467,
+      "2026": -0.0767
+    },
+    "基准年化": 0.065,
+    "累计超额": -0.1723,
+    "基准最大回撤": -0.1566,
+    "滚动3年跑赢基准比例": 0.0
+  },
+  "luck": {
+    "分布": {
+      "5%": -0.04273999999999999,
+      "25%": 0.005675,
+      "50%": 0.02435,
+      "75%": 0.044375,
+      "95%": 0.0663
+    },
+    "实际分位": 1.0,
+    "样本数": 40
+  },
+  "oos_freeze": {
+    "declared_on": "2026-09-24",
+    "rule": "The configuration recorded in config.json at this commit is frozen. Any future change to universe filters, gates, factor weights or rebalance frequency must be added to this registry BEFORE the backtest is run, with a predicted direction, and the frozen configuration's record continues to be reported alongside.",
+    "holdout_start": "2023-09-15",
+    "holdout_note": "The last 3 years were held out of all configuration decisions in trials 1-26; those trials were evaluated on 2011-01..2023-09 only."
+  },
+  "trials": [
+    {
+      "id": 1,
+      "what": "quality+dividend+lowvol, equal weight, monthly, N<=35",
+      "status": "run"
+    },
+    {
+      "id": 2,
+      "what": "same, quarterly rebalance",
+      "status": "run"
+    },
+    {
+      "id": 3,
+      "what": "same, semiannual rebalance",
+      "status": "run"
+    },
+    {
+      "id": 4,
+      "what": "add value (EP) as a fourth group, equal weight",
+      "status": "run"
+    },
+    {
+      "id": 5,
+      "what": "drop the smallest 30% by float mktcap (LSY 2019 shell filter)",
+      "status": "run"
+    },
+    {
+      "id": 6,
+      "what": "no size filter (kept as a robustness check only)",
+      "status": "run"
+    },
+    {
+      "id": 7,
+      "what": "exclude ST names",
+      "status": "run"
+    },
+    {
+      "id": 8,
+      "what": "include ST names (robustness)",
+      "status": "run"
+    },
+    {
+      "id": 9,
+      "what": "liquidity screen at the 10th percentile of ADV",
+      "status": "run"
+    },
+    {
+      "id": 10,
+      "what": "valuation screen: exclude the cheapest-EP 20%",
+      "status": "run"
+    },
+    {
+      "id": 11,
+      "what": "absolute ROE gate at the trailing market median",
+      "status": "run"
+    },
+    {
+      "id": 12,
+      "what": "absolute dividend gate at 1.0x the risk-free rate",
+      "status": "run"
+    },
+    {
+      "id": 13,
+      "what": "dividend gate at 1.2x risk-free (robustness)",
+      "status": "run"
+    },
+    {
+      "id": 14,
+      "what": "volatility gate at the 70th cross-sectional percentile",
+      "status": "run"
+    },
+    {
+      "id": 15,
+      "what": "EP > 0 gate",
+      "status": "run"
+    },
+    {
+      "id": 16,
+      "what": "position cap 10%, industry cap 30%",
+      "status": "run"
+    },
+    {
+      "id": 17,
+      "what": "industry cap 20% (robustness)",
+      "status": "run"
+    },
+    {
+      "id": 18,
+      "what": "drawdown circuit breaker at -20%, half position",
+      "status": "run"
+    },
+    {
+      "id": 19,
+      "what": "no circuit breaker",
+      "status": "run"
+    },
+    {
+      "id": 20,
+      "what": "minimum ticket size 800 CNY (cost-aware N cap)",
+      "status": "run"
+    },
+    {
+      "id": 21,
+      "what": "no minimum ticket size",
+      "status": "run"
+    },
+    {
+      "id": 22,
+      "what": "turnover change cap at +/-50% of previous N",
+      "status": "run"
+    },
+    {
+      "id": 23,
+      "what": "ann_date used verbatim as the PIT anchor (rejected: 396-day median lag)",
+      "status": "run"
+    },
+    {
+      "id": 24,
+      "what": "min(ann_date, statutory filing deadline) as the PIT anchor (adopted)",
+      "status": "run"
+    },
+    {
+      "id": 25,
+      "what": "dividend aggregation by fiscal year, additive across interim periods",
+      "status": "run"
+    },
+    {
+      "id": 26,
+      "what": "dividend aggregation assuming annual contains interim (rejected by data)",
+      "status": "run"
+    },
+    {
+      "id": 27,
+      "what": "drop the quality factor from the composite (equal weight over the remaining three)",
+      "status": "registered, not run",
+      "registered_on": "2026-09-25",
+      "motivation": "docs/05 section 5.1: quality has Rank IC 0.0055, Newey-West t = 0.49, hit rate 49.2%, and marginal IC turning negative by quarter four. It carries 25% of the composite weight.",
+      "prediction": "Composite Rank IC rises from 0.0687 toward the 0.07-0.08 range and its t rises above 5.59; portfolio Sharpe improves by less than the IC does, because costs and constraints are unchanged.",
+      "why_not_run": "The quality result was measured on the same sample that would justify removing it. Running this now and reporting the improved composite would be fitting the data twice and presenting the second fit as a discovery. To be evaluated on the frozen holdout."
+    },
+    {
+      "id": 28,
+      "what": "annual rather than quarterly rebalancing",
+      "status": "registered, not run",
+      "registered_on": "2026-09-25",
+      "motivation": "docs/05 section 5.2: marginal Rank IC at quarter six is still 54% of quarter one for low volatility and 60% for the composite. A_min is linear in rebalance frequency f.",
+      "prediction": "A_min falls below CNY 2,000 (from CNY 3,643) for any measured annual turnover tau1 <= 1.0; net CAGR at small account sizes improves; gross alpha falls somewhat because the signal is sampled less often.",
+      "how_to_test": "Set 调仓频率 to \"年\" in config.json and re-run research/capacity.py, which measures tau1 rather than assuming it."
+    },
+    {
+      "id": 29,
+      "what": "low volatility as an exclusion rule (drop the most volatile decile) rather than a ranking",
+      "status": "registered, not run",
+      "registered_on": "2026-09-25",
+      "motivation": "docs/05 section 5.4: the decile-1-to-decile-2 step is 1.45pp of the 3.18pp total spread -- 46% of the effect in one of nine steps. An exclusion turns over far less often than a ranking.",
+      "prediction": "Captures roughly half the decile spread at materially lower turnover, so net alpha at small account sizes improves even though gross alpha falls."
+    },
+    {
+      "id": 30,
+      "what": "solve the lot constraint and the fee floor jointly, rather than reporting the fee floor alone",
+      "status": "registered, not run",
+      "registered_on": "2026-09-25",
+      "motivation": "docs/02 section 2.4b: A-shares trade in lots of 100 shares, so capital per position has a second, mechanical floor of 100 x price. Measured lot costs for the names this strategy holds run CNY 250 to 2,500 against a fee requirement of CNY 304, so the lot constraint binds at five of six tested account sizes. The published A_min reports only the fee side.",
+      "prediction": "The jointly-solved minimum is materially higher than CNY 3,643 -- around CNY 15,000 for a 12-position book -- and the fee floor becomes the binding constraint only where the strategy selects unusually cheap names.",
+      "how_to_test": "research/capacity.py now measures median_lot_cost_cny from the names actually held and reports binding_minimum(); re-running it produces the joint answer. The closed form and its tests are already in cost_model.py."
+    }
+  ],
+  "pbo": {
+    "pbo": 0.4329004329004329,
+    "median_logit": 0.3053816495511821,
+    "n_partitions": 924,
+    "n_configs": 32,
+    "n_splits": 12,
+    "n_periods": 63,
+    "configurations": [
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 5
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 10
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 15
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 25
+      },
+      {
+        "weights": {
+          "质量": 2,
+          "红利": 1,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 5
+      },
+      {
+        "weights": {
+          "质量": 2,
+          "红利": 1,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 10
+      },
+      {
+        "weights": {
+          "质量": 2,
+          "红利": 1,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 15
+      },
+      {
+        "weights": {
+          "质量": 2,
+          "红利": 1,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 25
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 2,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 5
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 2,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 10
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 2,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 15
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 2,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 25
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 2,
+          "估值": 1
+        },
+        "n_holdings": 5
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 2,
+          "估值": 1
+        },
+        "n_holdings": 10
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 2,
+          "估值": 1
+        },
+        "n_holdings": 15
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 2,
+          "估值": 1
+        },
+        "n_holdings": 25
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 1,
+          "估值": 2
+        },
+        "n_holdings": 5
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 1,
+          "估值": 2
+        },
+        "n_holdings": 10
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 1,
+          "估值": 2
+        },
+        "n_holdings": 15
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 1,
+          "估值": 2
+        },
+        "n_holdings": 25
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 0,
+          "估值": 0
+        },
+        "n_holdings": 5
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 0,
+          "估值": 0
+        },
+        "n_holdings": 10
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 0,
+          "估值": 0
+        },
+        "n_holdings": 15
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 1,
+          "低波": 0,
+          "估值": 0
+        },
+        "n_holdings": 25
+      },
+      {
+        "weights": {
+          "质量": 0,
+          "红利": 1,
+          "低波": 1,
+          "估值": 0
+        },
+        "n_holdings": 5
+      },
+      {
+        "weights": {
+          "质量": 0,
+          "红利": 1,
+          "低波": 1,
+          "估值": 0
+        },
+        "n_holdings": 10
+      },
+      {
+        "weights": {
+          "质量": 0,
+          "红利": 1,
+          "低波": 1,
+          "估值": 0
+        },
+        "n_holdings": 15
+      },
+      {
+        "weights": {
+          "质量": 0,
+          "红利": 1,
+          "低波": 1,
+          "估值": 0
+        },
+        "n_holdings": 25
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 0,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 5
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 0,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 10
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 0,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 15
+      },
+      {
+        "weights": {
+          "质量": 1,
+          "红利": 0,
+          "低波": 1,
+          "估值": 1
+        },
+        "n_holdings": 25
+      }
+    ],
+    "best_config_full_sample": {
+      "index": 27,
+      "weights": {
+        "质量": 0,
+        "红利": 1,
+        "低波": 1,
+        "估值": 0
+      },
+      "n_holdings": 25,
+      "mean_per_period": 0.033393057693342956,
+      "spread_over_worst": 0.016607104660665967
+    }
+  }
+}
